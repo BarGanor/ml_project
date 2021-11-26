@@ -2,11 +2,14 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.preprocessing import MinMaxScaler
+from IPython.display import display
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
-
 
 
 def drop_nan_by_thresh(df, thresh):
@@ -16,9 +19,13 @@ def drop_nan_by_thresh(df, thresh):
 
     rows_dropped = df.shape[0] - dropped_df.shape[0]
     nan_values_dropped = sum((df.isna().sum() - dropped_df.isna().sum()).tolist())
-    print('Number Of rows dropped: ' + str(rows_dropped))
-    print('Number Of nan values dropped: ' + str(nan_values_dropped))
 
+    difference_df = pd.concat([df.isna().sum(), dropped_df.isna().sum()], axis=1)
+    difference_df.columns = ['Before', 'After']
+    difference_df.loc['Sum Of Missing Vals'] = difference_df.sum(axis=0)
+    difference_df.loc['Numbers in Rows'] = [df.shape[0], dropped_df.shape[0]]
+    difference_df['Difference'] = difference_df['Before'] - difference_df['After']
+    display(difference_df)
     return dropped_df
 
 
@@ -53,17 +60,18 @@ def get_replacement_df():
     }
     experience = {'>20': '25', '<1': '0'}
 
-    df = pd.DataFrame({'company_size before' : company_size.keys(),
-                       'company_size after' : company_size.values(),
-                       'last_new_job before' : last_new_job.keys(),
-                       'last_new_job after' : last_new_job.values(),
-                       'major_discipline before' : major_discipline.keys(),
-                       'major_discipline after' : major_discipline.values(),
+    df = pd.DataFrame({'company_size before': company_size.keys(),
+                       'company_size after': company_size.values(),
+                       'last_new_job before': last_new_job.keys(),
+                       'last_new_job after': last_new_job.values(),
+                       'major_discipline before': major_discipline.keys(),
+                       'major_discipline after': major_discipline.values(),
                        'experience before': experience.keys(),
                        'experience after': experience.values()
                        })
 
     return df
+
 
 def replace_by_dict(df, col_name):
     replaced_df = df.copy()
@@ -133,14 +141,92 @@ def fill_nan_with_max_appear(df, col_name):
     max_appear = df['education_level'].value_counts().idxmax()
 
     filled_df[col_name] = filled_df[col_name].fillna(max_appear)
+
+    fig, axes = plt.subplots(1, 2)
+    plt.xticks(rotation=90)
+    sns.barplot(x='index', y=col_name, data=df[col_name].value_counts().reset_index(), ax=axes[0]).set_title('Before')
+    sns.barplot(x='index', y=col_name, data=filled_df[col_name].value_counts().reset_index(), ax=axes[1]).set_title('After')
+
+    plt.tight_layout()
+    axes[0].tick_params(axis='x', rotation=90)
+    axes[1].tick_params(axis='x', rotation=90)
+    plt.show()
+
     return filled_df
 
 
 def fill_nan_with_median(df, col_name):
+    # fill the column
     filled_df = df.copy()
     filled_df[col_name] = filled_df[col_name].astype('float64')
     col_median = np.median(filled_df[col_name].dropna().values)
     filled_df[col_name] = filled_df[col_name].fillna(col_median)
+
+    # Create Plot
+    value_counts_filled = filled_df[col_name].value_counts()
+    value_counts_orig = df[col_name].astype('float64').value_counts()
+
+    fig, axes = plt.subplots(1, 2)
+    sns.kdeplot(x=value_counts_filled.index, y=value_counts_filled.values, ax=axes[0]).set_title('Before')
+    sns.kdeplot(x=value_counts_orig.index, y=value_counts_orig.values, ax=axes[1]).set_title('After')
+    plt.show()
     return filled_df
+
+
+def plot_before_and_after(df_before, df_after):
+    fig, axes = plt.subplots(1, 2)
+    sns.violinplot(x="gender", y="target", data=df_before, split=True, ax=axes[0]).set_title('Before')
+    sns.violinplot(x="gender", y="target", data=df_after, split=True, ax=axes[1]).set_title('After')
+    plt.tight_layout()
+    plt.show()
+
+
+def fit_the_model(x, y):
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+
+    model = KNeighborsClassifier(n_neighbors=8)
+    model.fit(x_train, y_train)
+    print('Model Score on Self: ' + str(model.score(x_test, y_test)))
+
+    return model
+
+
+def prepare_df_for_model(df, for_train=True):
+    scaler = MinMaxScaler()
+    if for_train:
+        df = df.dropna()
+
+    cat_vars = df[['relevent_experience', 'enrolled_university', 'education_level', 'major_discipline', 'last_new_job', 'target', 'company_size']].copy()
+
+    cat_dummies = pd.get_dummies(cat_vars, drop_first=True)
+    prepared_df = df.copy()
+    prepared_df = prepared_df.drop(columns=cat_vars.columns)
+    gender = prepared_df['gender']
+    prepared_df = prepared_df.drop(columns=['city', 'enrollee_id', 'company_type', 'city_development_index', 'gender'])
+    prepared_df = pd.DataFrame(scaler.fit_transform(prepared_df), columns=prepared_df.columns, index=prepared_df.index)
+    prepared_df = pd.concat([prepared_df, cat_dummies, gender], axis=1)
+    return prepared_df
+
+
+def get_fit_model(df):
+    prepared_df = prepare_df_for_model(df.copy())
+    x = prepared_df.drop(columns=['gender'])
+    y = prepared_df['gender']
+    model = fit_the_model(x, y)
+    return model
+
+def fill_nan_with_knn(df):
+    filled_df = df.copy()
+    all_are_nan = prepare_df_for_model(filled_df[pd.isna(filled_df['gender'])], for_train=False)
+    non_are_nan = filled_df[pd.notna(filled_df['gender'])]
+
+    model = get_fit_model(non_are_nan)
+    all_are_nan['gender'] = model.predict(all_are_nan.drop(columns=['gender']))
+
+    filled_df.loc[pd.isna(filled_df['gender']), 'gender'] = all_are_nan['gender']
+    plot_before_and_after(df_before=df, df_after=filled_df)
+    return filled_df
+
+
 
 
