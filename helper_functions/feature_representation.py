@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-from missing_values import replace_by_dict
+from helper_functions.missing_values import replace_by_dict
 
 
 def get_dummies(df, col_names):
