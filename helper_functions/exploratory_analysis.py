@@ -93,4 +93,3 @@ def get_job_seekers_by_gender(df):
     print('אחוז מחפשי העבודה לפי מגדר')
     return df[df['target'] == 0]['gender'].value_counts() / df['gender'].value_counts()
 
-# get_all_plots(data)

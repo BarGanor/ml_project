@@ -3,9 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import MinMaxScaler
-from IPython.display import display
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+from IPython.display import display
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -14,11 +14,7 @@ pd.set_option('display.width', 1000)
 
 def drop_nan_by_thresh(df, thresh):
     dropped_df = df.copy()
-
     dropped_df = dropped_df.dropna(thresh=thresh, axis=0)
-
-    rows_dropped = df.shape[0] - dropped_df.shape[0]
-    nan_values_dropped = sum((df.isna().sum() - dropped_df.isna().sum()).tolist())
 
     difference_df = pd.concat([df.isna().sum(), dropped_df.isna().sum()], axis=1)
     difference_df.columns = ['Before', 'After']
@@ -106,8 +102,22 @@ def replace_by_dict(df, col_name):
             'No Major': 5
         }
 
+    elif col_name == 'company_type':
+        replacement_dict = {
+            'Pvt Ltd': 1,
+            'Unknown': 2,
+            'Funded Startup': 3,
+            'Public Sector': 4,
+            'Early Stage Startup': 5,
+            'NGO': 6,
+            'Other': 7,
+        }
+
     elif col_name == 'experience':
         replacement_dict = {'>20': '25', '<1': '0'}
+
+    elif col_name == 'education_level':
+        replacement_dict = {'Graduate': 15, 'Masters': 17, 'High School': 12, 'Phd': 20, 'Primary School': 6}
     else:
         replacement_dict = {}
 
@@ -129,6 +139,7 @@ def fill_nan_with_probability(df, col_name):
     filled_df.loc[all_nan_data, col_name] = np.random.choice(prob.index, size=len(df[all_nan_data]), p=prob.values)
 
     f, axes = plt.subplots(1, 2)
+    plt.tight_layout(pad=4.0)
     sns.boxplot(x='target', y=col_name, data=no_nan_data, ax=axes[0]).set_title('Before Inserting')
     sns.boxplot(x='target', y=col_name, data=filled_df, ax=axes[1]).set_title('After Inserting')
     plt.show()
@@ -215,7 +226,8 @@ def get_fit_model(df):
     model = fit_the_model(x, y)
     return model
 
-def fill_nan_with_knn(df):
+
+def fill_gender_with_knn(df):
     filled_df = df.copy()
     all_are_nan = prepare_df_for_model(filled_df[pd.isna(filled_df['gender'])], for_train=False)
     non_are_nan = filled_df[pd.notna(filled_df['gender'])]
@@ -228,5 +240,10 @@ def fill_nan_with_knn(df):
     return filled_df
 
 
-
-
+def fill_nan_with_unknown(df, col):
+    df = df.copy()
+    df[col] = df[col].fillna('Unknown')
+    value_counts = df[col].value_counts()
+    plt.xticks(rotation=90)
+    sns.barplot(x=value_counts.index, y=value_counts.values)
+    return df
