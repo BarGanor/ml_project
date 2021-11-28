@@ -27,9 +27,8 @@ def plot_gender(df, ax):
 
 
 def plot_relevant_experience(df, ax):
-    relevant_experience = df['relevent_experience'].value_counts()
-    relevant_experience.index = relevant_experience.index.map({'Has relevent experience	': 'Has', 'No relevent experience': 'Doesnt have'})
-    relevant_experience.plot(kind='bar', title='relevant_experience', ax=ax)
+    sns.countplot(x='relevent_experience', hue='target', data=data, palette="Set1", ax=ax).set_title('relevant experience by target')
+
 
 
 def plot_education_level(df, ax):
