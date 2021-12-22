@@ -11,9 +11,8 @@ def train_model_by_kfold(df, model):
         X_train, X_test = X.iloc[train_index], X.iloc[test_index]
         y_train, y_test = y.iloc[train_index], y.iloc[test_index]
         model.fit(X_train,y_train)
-        score = model.score(X_test, y_test)
+        prediction = model.predict_proba(X_test)
+        score = roc_auc_score(y_test, prediction[:,1])
         scores.append(score)
-        print(score)
-
     print('\n\nCross-Validation accuracy: %.3f +/- %.3f' % (np.mean(scores), np.std(scores)))
 
