@@ -63,6 +63,9 @@ def plot_last_new_job(df, ax):
 def plot_target(df, ax):
     df['target'].value_counts().plot.bar(ax=ax).set_title('target')
 
+def plot_enrolled_university(df, ax):
+    sns.countplot(x=df['enrolled_university'], ax=ax).set_title('enrolled_university')
+
 
 def get_all_plots(df):
     plot_lst = [
@@ -71,10 +74,10 @@ def get_all_plots(df):
         plot_company_type,
         plot_training_hours, plot_target,
         plot_experience, plot_major_discipline,
-        plot_company_size, plot_last_new_job
+        plot_company_size, plot_last_new_job, plot_enrolled_university
     ]
 
-    fig, axes = plt.subplots(3, ceil(len(plot_lst) / 3), figsize=(30, 20))
+    fig, axes = plt.subplots(7, 2, figsize=(15, 40))
     axe = axes.ravel()
 
     for i in range(len(plot_lst)):

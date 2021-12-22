@@ -138,7 +138,8 @@ def fill_nan_with_probability(df, col_name):
     prob = no_nan_data[col_name].value_counts(normalize=True)
     filled_df.loc[all_nan_data, col_name] = np.random.choice(prob.index, size=len(df[all_nan_data]), p=prob.values)
 
-    f, axes = plt.subplots(1, 2)
+    fig, axes = plt.subplots(1, 2)
+    fig.suptitle(col_name)
     plt.tight_layout(pad=4.0)
     sns.boxplot(x='target', y=col_name, data=no_nan_data, ax=axes[0]).set_title('Before Inserting')
     sns.boxplot(x='target', y=col_name, data=filled_df, ax=axes[1]).set_title('After Inserting')
@@ -154,6 +155,7 @@ def fill_nan_with_max_appear(df, col_name):
     filled_df[col_name] = filled_df[col_name].fillna(max_appear)
 
     fig, axes = plt.subplots(1, 2)
+    fig.suptitle(col_name)
     plt.xticks(rotation=90)
     sns.barplot(x='index', y=col_name, data=df[col_name].value_counts().reset_index(), ax=axes[0]).set_title('Before')
     sns.barplot(x='index', y=col_name, data=filled_df[col_name].value_counts().reset_index(), ax=axes[1]).set_title('After')
@@ -178,6 +180,7 @@ def fill_nan_with_median(df, col_name):
     value_counts_orig = df[col_name].astype('float64').value_counts()
 
     fig, axes = plt.subplots(1, 2)
+    fig.suptitle(col_name)
     sns.kdeplot(x=value_counts_filled.index, y=value_counts_filled.values, ax=axes[0]).set_title('Before')
     sns.kdeplot(x=value_counts_orig.index, y=value_counts_orig.values, ax=axes[1]).set_title('After')
     plt.show()
@@ -186,6 +189,7 @@ def fill_nan_with_median(df, col_name):
 
 def plot_before_and_after(df_before, df_after):
     fig, axes = plt.subplots(1, 2)
+    fig.suptitle('gender')
     sns.violinplot(x="gender", y="target", data=df_before, split=True, ax=axes[0]).set_title('Before')
     sns.violinplot(x="gender", y="target", data=df_after, split=True, ax=axes[1]).set_title('After')
     plt.tight_layout()

@@ -5,7 +5,8 @@ import pandas as pd
 from IPython.display import display
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LogisticRegression
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def get_categorical_vars_corr(df, col_list):
     chi2_result_df = pd.DataFrame()
@@ -58,7 +59,7 @@ def drop_unimportant_vars(df, correlation_df):
 
 def get_backtracking_results(df):
     model = LogisticRegression()
-    rfe = RFE(model, n_features_to_select=6)
+    rfe = RFE(model, n_features_to_select=1)
     x = df.drop(columns=['target'])
     y = df['target']
 
@@ -69,7 +70,6 @@ def get_backtracking_results(df):
         rfe_results.append(
             {
                 'Feature_names': x.columns[i],
-                'Selected': rfe.support_[i],
                 'RFE_ranking': rfe.ranking_[i],
             }
         )
@@ -79,7 +79,34 @@ def get_backtracking_results(df):
     return rfe_results
 
 
-def drop_not_selected(df, backtracking_results):
-    selected_vars = backtracking_results[backtracking_results['Selected'] == True].index.tolist()
-    selected_vars.append('target')
-    return df[selected_vars]
+def drop_not_selected(df, chosen_cols):
+    chosen_cols.append('target')
+    return df[chosen_cols]
+
+
+def get_slope(x,y):
+    slope = (y[0] - y[-1])/ (x[0]-x[-1])
+    return "%.3f" % slope
+
+
+def get_qualitative_evaluation_charts(df):
+    cols = df.drop(columns=['target']).columns
+    fig, axes = plt.subplots(4, 3, figsize=(30, 20))
+    axe = axes.ravel()
+    for i in range(len(cols)):
+        if df[cols[i]].dtypes == 'float64':
+            p = sns.regplot(x='target', y=cols[i], data=df, ax=axe[i])
+            x, y = p.get_lines()[0].get_data()
+            slope = get_slope(x, y)
+            p.set_title(cols[i] + '\n Slope of line: ' + str(slope))
+
+        elif cols[i] != 'target':
+            counts = (df.groupby(['target'])[cols[i]]
+                      .value_counts(normalize=True)
+                      .rename('percentage')
+                      .mul(100)
+                      .reset_index())
+            sns.barplot(x=cols[i], y="percentage", hue="target", data=counts, ax=axe[i]).set_title(cols[i])
+
+
+    fig.tight_layout(pad=3.0)
