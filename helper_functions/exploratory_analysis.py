@@ -8,7 +8,7 @@ pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
-path = '/Users/barganor/Downloads/XY_train (1).csv'
+path = '/Users/ofrifox/Downloads/XY_train (2).csv'
 
 data = pd.read_csv(path)
 
