@@ -10,11 +10,11 @@ def get_coef_vals(df):
     logit_results = pd.DataFrame()
     for col in col_vars:
         x_values = df[col]
-        if col == 'experience':
-            logit_model = sm.Logit(df['target'], x_values)
-        else:
-            logit_model = sm.Logit(df['target'], pd.get_dummies(x_values))
 
+        if col in ['relevent_experience', 'enrolled_university']:
+            logit_model = sm.Logit(df['target'], pd.get_dummies(x_values))
+        else:
+            logit_model = sm.Logit(df['target'], x_values)
         result = logit_model.fit(disp=0)
         col_params = pd.concat([result.params, result.pvalues], axis=1)
         col_params.columns = ['Coef', 'P-value']
@@ -31,21 +31,23 @@ def get_relevant_exp_score(df, logit_results):
 
 
 def get_education_level_score(df, logit_results):
-    if (df['education_level'] == 'Phd'):
-        return logit_results['Phd']
+    # if (df['education_level'] == 'Phd'):
+    #     return logit_results['Phd']
+    #
+    # elif (df['education_level'] == 'Masters'):
+    #     return logit_results['Masters']
+    #
+    #
+    # elif (df['education_level'] == 'Graduate'):
+    #     return logit_results['Graduate']
+    #
+    # elif (df['education_level'] == 'High School'):
+    #     return logit_results['High School']
+    #
+    # else:
+    #     return logit_results['Primary School']
 
-    elif (df['education_level'] == 'Masters'):
-        return logit_results['Masters']
-
-
-    elif (df['education_level'] == 'Graduate'):
-        return logit_results['Graduate']
-
-    elif (df['education_level'] == 'High School'):
-        return logit_results['High School']
-
-    else:
-        return logit_results['Primary School']
+    return df['education_level'] * logit_results['education_level']
 
 
 def get_experience_score(df, logit_results):
