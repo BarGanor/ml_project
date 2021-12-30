@@ -39,7 +39,7 @@ def get_numeric_vars_corr(df, col_list):
 def get_correlation_df(df):
 
     categorical = ['Has relevent experience', 'Male', 'Female', 'company_type', 'Full time course', 'enrollment']
-    numeric = ['training_hours', 'experience', 'company_size', 'education_level', 'last_new_job', 'qualification_score', 'relevant_experience_years']
+    numeric = ['training_hours', 'experience', 'company_size', 'education_level', 'last_new_job', 'qualification_score', 'relevant_experience_years', 'city_development_index']
 
     categorical_corr = get_categorical_vars_corr(df, categorical)
     numeric_corr = get_numeric_vars_corr(df, numeric)

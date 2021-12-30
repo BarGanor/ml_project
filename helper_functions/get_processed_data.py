@@ -1,3 +1,4 @@
+from sklearn.experimental import enable_iterative_imputer
 from .exploratory_analysis import *
 from .feature_selection import *
 from .feature_extraction import *
@@ -18,7 +19,7 @@ def get_processed_data(df):
 
 
 def drop_nan(df):
-    return drop_nan_by_thresh(data, 12)
+    return drop_nan_by_thresh(df, 12)
 
 
 def replace_values(df):
@@ -27,18 +28,23 @@ def replace_values(df):
     df = replace_by_dict(df, 'major_discipline')
     df = replace_by_dict(df, 'experience')
     df = replace_by_dict(df, 'company_type')
+    df = replace_by_dict(df, 'education_level')
+    df = replace_by_dict(df, 'enrolled_university')
+    df = replace_by_dict(df, 'gender')
+    df = replace_by_dict(df, 'relevent_experience')
     return df
 
 
 def fill_nan_values(df):
-    df = fill_nan_with_median(df, 'experience')
-    df = fill_nan_with_probability(df, 'company_size')
-    df = fill_nan_with_probability(df, 'last_new_job')
-    df = fill_nan_with_probability(df, 'major_discipline')
-    df = fill_nan_with_max_appear(df, 'education_level')
-    df = fill_nan_with_probability(df, 'enrolled_university')
-    df = fill_nan_with_probability(df, 'company_type')
-    df = fill_gender_with_knn(df)
+    df = fill_nan_with_mice(df, 'experience')
+    df = fill_nan_with_mice(df, 'company_size')
+    df = fill_nan_with_mice(df, 'last_new_job')
+    df = fill_nan_with_mice(df, 'major_discipline')
+    df = fill_nan_with_mice(df, 'education_level')
+    df = fill_nan_with_mice(df, 'enrolled_university')
+    df = fill_nan_with_mice(df, 'company_type')
+    df = fill_nan_with_mice(df, 'gender')
+    df = fill_nan_with_mice(df, 'relevent_experience')
     return df
 
 
@@ -55,9 +61,10 @@ def represent_data(df):
 def select_features(df):
     correlation_df = get_correlation_df(df)
     df = drop_unimportant_vars(df, correlation_df)
-
-    # Choosing final selection
-    selected_features = ['city_development_index', 'experience', 'qualification_score', 'enrollment', 'training_hours']
+    backtracking_results = get_backtracking_results(df)
+    correlation_df.index = correlation_df.index.droplevel()
+    selection_df = pd.concat([correlation_df, backtracking_results], axis=1)
+    selected_features = list(selection_df[selection_df['RFE_ranking'] <= 6].index)
     df = drop_not_selected(df, selected_features)
     return df
 

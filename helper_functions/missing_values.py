@@ -6,6 +6,8 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from IPython.display import display
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -112,6 +114,25 @@ def replace_by_dict(df, col_name):
             'NGO': 6,
             'Other': 7,
         }
+    elif col_name == 'enrolled_university':
+        replacement_dict = {
+            'no_enrollment': 0,
+            'Full time course': 1,
+            'Part time course': -1
+        }
+
+    elif col_name == 'gender':
+        replacement_dict = {
+            'Male': 1,
+            'Female': 0,
+            'Other': -1
+        }
+
+    elif col_name == 'relevent_experience':
+        replacement_dict = {
+            'Has relevent experience': 1,
+            'No relevent experience': 0
+        }
 
     elif col_name == 'experience':
         replacement_dict = {'>20': '25', '<1': '0'}
@@ -129,6 +150,24 @@ def replace_by_dict(df, col_name):
     print(changes_df.sort_values(by='Values after change').to_string(index=False))
 
     return replaced_df
+
+
+def fill_nan_with_mice(df, col_name):
+    imputer = IterativeImputer()
+    filled_df = df.copy()
+
+    filled_df[col_name] = imputer.fit_transform(filled_df[[col_name]])
+    filled_df[col_name] = round(filled_df[[col_name]])
+
+    if col_name == 'relevent_experience':
+        filled_df[col_name] = filled_df[col_name].replace({0: 'No relevent experience', 1: 'Has relevent experience'})
+
+    if col_name == 'enrolled_university':
+        filled_df[col_name] = filled_df[col_name].replace({0: 'no_enrollment', 1: 'Full time course', -1: 'Part time course'})
+
+    if col_name == 'gender':
+        filled_df[col_name] = filled_df[col_name].replace({0: 'Female', 1: 'Male', -1: 'Other'})
+    return filled_df
 
 
 def fill_nan_with_probability(df, col_name):

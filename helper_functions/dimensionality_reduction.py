@@ -1,7 +1,9 @@
 from sklearn.decomposition import PCA
 import pandas as pd
 def get_pca_results(df):
-    x = df.drop(columns=['target', 'enrollment'])
+    categorical = df.dtypes[df.dtypes != 'float64'].index
+
+    x = df.drop(columns=categorical)
 
     pca = PCA(.95)
     pca.fit(x)
