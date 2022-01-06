@@ -30,3 +30,4 @@ def get_result_coeff_and_intrec(df):
     SVM_best_model.fit(x,y)
     print('Coefficients: \n',SVM_best_model.coef_)
     print('Intercepts: \n', SVM_best_model.intercept_)
+    return SVM_best_model
