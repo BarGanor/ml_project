@@ -121,7 +121,7 @@ def plot_Decision_Tree(df):
     plt.title("Decision Tree Model")
     plt.show()
 
-def Feature_Importance(df):
+def feature_importance(df):
     X = df.drop(columns=['target'])
     Y = df['target']
     model = DecisionTreeClassifier(max_depth=3, criterion='gini', min_samples_leaf=81)
@@ -132,7 +132,7 @@ def Feature_Importance(df):
     plot_Feature_Importance(df, model, importance,X)
    
     
-def plot_Feature_Importance(df, model, importance,X):
+def plot_feature_importance(df, model, importance,X):
     plt.figure(figsize=(15, 7))
     pd.Series(model.feature_importances_).plot.bar(color='steelblue')
     plt.bar(range(len(model.feature_importances_)), model.feature_importances_)
