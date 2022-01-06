@@ -14,7 +14,7 @@ def get_processed_data(df):
     df = extract_features(df)
     df = represent_data(df)
     df = select_features(df)
-    df = reduce_dimensionality(df)
+    ##df = reduce_dimensionality(df)
     return df
 
 
