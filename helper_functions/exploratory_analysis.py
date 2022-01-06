@@ -8,9 +8,6 @@ pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
-path = '/Users/ofrifox/Downloads/XY_train (2).csv'
-
-data = pd.read_csv(path)
 
 
 def plot_cities(df, ax):
@@ -27,7 +24,7 @@ def plot_gender(df, ax):
 
 
 def plot_relevant_experience(df, ax):
-    sns.countplot(x='relevent_experience', hue='target', data=data, palette="Set1", ax=ax).set_title('relevant experience by target')
+    sns.countplot(x='relevent_experience', hue='target', data=df, palette="Set1", ax=ax).set_title('relevant experience by target')
 
 
 
