@@ -14,7 +14,8 @@ def max_depth(data, do_plot=False):
         model = DecisionTreeClassifier(max_depth=depth)
         scores = train_model_by_kfold(data, model)
         all_scores = all_scores.append({'max_depth': depth,
-                          'scores': scores}, ignore_index=True)
+                                        'test_score': scores['test_score'].mean(),
+                                        'training_score': scores['training_score'].mean()}, ignore_index=True)
     if do_plot:
         plot_max_depth(all_scores)
 
@@ -29,7 +30,8 @@ def criterion(data, do_plot=False):
         model = DecisionTreeClassifier(max_depth=3, criterion=criterion)
         scores = train_model_by_kfold(data, model)
         all_scores = all_scores.append({'criterion':  criterion,
-                          'scores': scores}, ignore_index=True)
+                                        'test_score': scores['test_score'].mean(),
+                                        'training_score': scores['training_score'].mean() }, ignore_index=True)
 
     if do_plot:
         plot_criterion(all_scores)
@@ -68,9 +70,10 @@ def min_impurity_decrease(data, do_plot=False):
 
 
 def plot_max_depth(all_scores):
+    print(all_scores)
     plt.figure(figsize=(12, 5))
-    ax1 = sns.lineplot(x=all_scores['max_depth'], y=all_scores['Validation Score'], label='Validation')
-    ax2 = sns.lineplot(x=all_scores['max_depth'], y=all_scores['Training Score'], label='Training')
+    ax1 = sns.lineplot(x=all_scores['max_depth'], y=all_scores['test_score'], label='Validation')
+    ax2 = sns.lineplot(x=all_scores['max_depth'], y=all_scores['training_score'], label='Training')
     ax1.set(xlabel='Max Depth', ylabel='ROC-AOC Score')
     ax2.set(xlabel='Max Depth', ylabel='ROC-AOC Score')
     plt.legend()
@@ -129,7 +132,7 @@ def feature_importance(df):
     importance = model.feature_importances_
     for i, v in enumerate(importance):
         print('Feature: %0d, Score: %.5f' % (i, v))
-    plot_Feature_Importance(df, model, importance,X)
+    plot_feature_importance(df, model, importance,X)
    
     
 def plot_feature_importance(df, model, importance,X):

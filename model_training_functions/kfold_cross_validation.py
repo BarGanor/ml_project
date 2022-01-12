@@ -15,15 +15,15 @@ def train_model_by_kfold(df, model):
         model.fit(X_train,y_train)
         training_score = model.score(X_train, y_train)
         test_score = model.score(X_test, y_test)
-        scores.append({'training_score': [training_score], 'test_score':[test_score]}, ignore_index=True)
+        scores =scores.append({'training_score': training_score, 'test_score':test_score}, ignore_index=True)
 
     
     print('\n\nTest accuracy: %.3f +/- %.3f' % (scores['test_score'].mean(), scores['test_score'].std()))
-    print('\n\nTraining accuracy: %.3f +/- %.3f' % (scores['training_score'].mean(), scores['training_score'].std()))
+    print('Training accuracy: %.3f +/- %.3f' % (scores['training_score'].mean(), scores['training_score'].std()))
     return scores
 
 
-def train_model_by_kfold_depth(df, model):
+def train_model_by_kfold_decision_tree(df, model):
     kf = KFold(n_splits=10)
     X = df.drop(columns=['target'])
     y = df['target']
@@ -34,7 +34,5 @@ def train_model_by_kfold_depth(df, model):
         model.fit(X_train,y_train)
         score = model.score(X_test, y_test)
         scores.append(score)
-        print(score)
-    
-    print('\n\nCross-Validation accuracy: %.3f +/- %.3f' % (np.mean(scores), np.std(scores)))
+        
     return  np.mean(scores)

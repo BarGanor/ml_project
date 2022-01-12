@@ -3,8 +3,9 @@ from model_training_functions.kfold_cross_validation import *
 import numpy as np
 import pandas as pd
 
-all_scores = pd.DataFrame()
+
 def get_C_SVM(df):
+    all_scores = pd.DataFrame()
     for c in np.arange(1, 2, 0.1):
         model = SVC(C=c, kernel='linear', random_state=42, probability=True)
         scores = train_model_by_kfold(df, model)
