@@ -1,4 +1,4 @@
-from .kfold_cross_validation import train_clustering_model_by_kfold
+from model_training_functions.kfold_cross_validation import *
 from sklearn_extra.cluster import KMedoids
 import pandas as pd
 import matplotlib.pyplot as plt

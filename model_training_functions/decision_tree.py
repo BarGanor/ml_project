@@ -46,7 +46,8 @@ def min_samples_leaf(data, do_plot=False):
         model = DecisionTreeClassifier(max_depth=3, criterion='gini', min_samples_leaf=min_sample)
         scores = train_model_by_kfold(data, model)
         all_scores = all_scores.append({'min_samples_leaf':  min_sample,
-                          'scores': scores}, ignore_index=True)
+                                        'test_score': scores['test_score'].mean(),
+                                        'training_score': scores['training_score'].mean()}, ignore_index=True)
 
     if do_plot:
         plot_min_sample_leaf(all_scores)
@@ -60,8 +61,8 @@ def min_impurity_decrease(data, do_plot=False):
         model = DecisionTreeClassifier(max_depth=3, criterion='gini', min_samples_leaf=81, min_impurity_decrease=min_impurity)
         scores = train_model_by_kfold(data, model)
         all_scores = all_scores.append({'min_impurity_decrease': min_impurity,
-                                        'scores': scores}, ignore_index=True)
-
+                                        'test_score': scores['test_score'].mean(),
+                                        'training_score': scores['training_score'].mean()}, ignore_index=True)
     if do_plot:
         plot_min_impurity(all_scores)
 
@@ -95,8 +96,8 @@ def plot_criterion(all_scores):
 
 def plot_min_sample_leaf(all_scores):
     plt.figure(figsize=(12, 5))
-    ax1 = sns.lineplot(x=all_scores['min_samples_leaf'], y=all_scores['Validation Score'], label='Validation')
-    ax2 = sns.lineplot(x=all_scores['min_samples_leaf'], y=all_scores['Training Score'], label='Training')
+    ax1 = sns.lineplot(x=all_scores['min_samples_leaf'], y=all_scores['test_score'], label='Validation')
+    ax2 = sns.lineplot(x=all_scores['min_samples_leaf'], y=all_scores['training_score'], label='Training')
     ax1.set(xlabel='Min Sample Leaf', ylabel='ROC-AOC Score')
     ax2.set(xlabel='Min Sample Leaf', ylabel='ROC-AOC Score')
     plt.legend()
@@ -106,8 +107,8 @@ def plot_min_sample_leaf(all_scores):
 
 def plot_min_impurity(all_scores):
     plt.figure(figsize=(12, 5))
-    ax1 = sns.lineplot(x=all_scores['min_impurity_decrease'], y=all_scores['Validation Score'], label='Validation')
-    ax2 = sns.lineplot(x=all_scores['min_impurity_decrease'], y=all_scores['Training Score'], label='Training')
+    ax1 = sns.lineplot(x=all_scores['min_impurity_decrease'], y=all_scores['test_score'], label='Validation')
+    ax2 = sns.lineplot(x=all_scores['min_impurity_decrease'], y=all_scores['training_score'], label='Training')
     ax1.set(xlabel='Min Impurity Decrease', ylabel='ROC-AOC Score')
     ax2.set(xlabel='Min Impurity Decrease', ylabel='ROC-AOC Score')
     plt.legend()

@@ -7,6 +7,7 @@ def get_dummies(df, col_names):
     dummies = pd.get_dummies(df[col_names])
     dummies.columns = [col[col.rfind('_')+1:] for col in dummies.columns]
     dummies = dummies.drop(columns=['No relevent experience', 'Other', 'Part time course'])
+    ##dummies = dummies.drop(columns=[ 'Other', 'Part time course'])
     return dummies
 
 

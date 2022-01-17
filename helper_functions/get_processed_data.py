@@ -37,6 +37,23 @@ def replace_values(df):
 
 def fill_nan_values(df):
     df = fill_nan_with_mice(df, 'experience')
+    df =  fill_nan_with_probability(df, 'company_size')
+    df = fill_nan_with_probability(df, 'last_new_job')
+    df = fill_nan_with_probability(df, 'major_discipline')
+    #df = fill_nan_with_mice(df, 'education_level')
+    df = fill_nan_with_max_appear(df, 'education_level')
+    df = fill_nan_with_mice(df, 'enrolled_university')
+    df = fill_nan_with_probability(df, 'enrolled_university')
+    df = fill_nan_with_probability(df, 'company_type')
+    df = fill_nan_with_mice(df, 'gender')
+    df = fill_nan_with_mice(df, 'relevent_experience')
+    #df = fill_nan_with_probability(df, 'relevent_experience')
+    return df
+
+
+
+def fill_nan_values_good(df):
+    df = fill_nan_with_mice(df, 'experience')
     df = fill_nan_with_mice(df, 'company_size')
     df = fill_nan_with_mice(df, 'last_new_job')
     df = fill_nan_with_mice(df, 'major_discipline')
@@ -45,7 +62,7 @@ def fill_nan_values(df):
     df = fill_nan_with_mice(df, 'company_type')
     df = fill_nan_with_mice(df, 'gender')
     df = fill_nan_with_mice(df, 'relevent_experience')
-    return df
+    return df 
 
 
 def extract_features(df):

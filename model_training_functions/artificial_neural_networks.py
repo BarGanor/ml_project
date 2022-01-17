@@ -48,8 +48,22 @@ def activations_function(data, do_plot=False):
         plot_activation_functions(all_scores)
     return all_scores
 
+def solvers(data, do_plot):
+    solvers = ['sgd', 'adam', 'lbfgs']
+    all_scores = pd.DataFrame()
+    for solver in solvers:
+        model = MLPClassifier(max_iter=600,hidden_layer_sizes=(100, 50, 10), activation='relu',solver=solver)
+        scores = train_model_by_kfold(data, model)
+        scores['solver'] = solver
+        all_scores = all_scores.append(scores, ignore_index=True)
+    
+    if do_plot:
+        plot_solvers(all_scores)
 
-def solver(data, do_plot):
+    return all_scores
+
+
+def n_iter_no_change(data, do_plot):
     iter_no_change = [5, 10, 15, 20]
     all_scores = pd.DataFrame()
     for n_iter in iter_no_change:
@@ -59,15 +73,15 @@ def solver(data, do_plot):
         all_scores = all_scores.append(scores, ignore_index=True)
 
     if do_plot:
-        plot_solver(all_scores)
+        plot_n_iter_no_change(all_scores)
 
     return all_scores
 
 
-def plot_solver(all_scores):
+def plot_n_iter_no_change(all_scores):
     plt.figure(figsize=(12, 5))
-    ax1 = sns.lineplot(x=all_scores['n_iter_no_change'], y=all_scores['Validation Score'], label='Validation')
-    ax2 = sns.lineplot(x=all_scores['n_iter_no_change'], y=all_scores['Training Score'], label='Training')
+    ax1 = sns.lineplot(x=all_scores['n_iter_no_change'], y=all_scores['test_score'], label='Validation')
+    ax2 = sns.lineplot(x=all_scores['n_iter_no_change'], y=all_scores['training_score'], label='Training')
     ax1.set(xlabel='N Iterations No Change', ylabel='ROC-AOC Score')
     plt.legend()
     ax1.set_xticks(all_scores['n_iter_no_change'].values.astype('int64'))
@@ -89,15 +103,25 @@ def plot_activation_functions(all_scores):
 
 def plot_max_iterations(all_scores):
     plt.figure(figsize=(12, 5))
-    ax1 = sns.lineplot(x=all_scores['max_iter'], y=all_scores['Validation Score'], label='Validation')
-    ax2 = sns.lineplot(x=all_scores['max_iter'], y=all_scores['Training Score'], label='Training')
+    ax1 = sns.lineplot(x=all_scores['max_iter'], y=all_scores['test_score'], label='Validation')
+    ax2 = sns.lineplot(x=all_scores['max_iter'], y=all_scores['training_score'], label='Training')
     ax1.set(xlabel='Max Iterations', ylabel='ROC-AOC Score')
     ax2.set(xlabel='Max Iterations', ylabel='ROC-AOC Score')
     plt.legend()
     plt.title('Max Iterations Tuning')
     plt.show()
 
-
+def plot_solvers(all_scores):
+    plt.figure(figsize=(12, 5))
+    temp = pd.melt(all_scores, id_vars='solver')
+    ax1 = sns.catplot(x='solver', y='value',
+                      hue='variable', data=temp, kind='bar', legend=False)
+    ax1.set(xlabel='solver Function', ylabel='ROC-AOC Score')
+    plt.title('solver Function Tuning')
+    plt.ylim(temp['value'].min() - 0.01, temp['value'].max() + 0.01)
+    plt.legend()
+    plt.show()
+    
 def plot_hidden_layer_sizes(all_scores):
     temp = pd.melt(all_scores, id_vars='hidden_layer_size')
     ax1 = sns.catplot(x='hidden_layer_size', y='value',

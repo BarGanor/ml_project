@@ -46,7 +46,6 @@ def get_education_level_score(df, logit_results):
     #
     # else:
     #     return logit_results['Primary School']
-
     return df['education_level'] * logit_results['education_level']
 
 
