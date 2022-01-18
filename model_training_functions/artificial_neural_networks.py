@@ -25,8 +25,10 @@ def hidden_layer_sizes(data, do_plot=False):
     sizes = [10, 50, 100]
     for L in range(0, len(sizes) + 1):
         for subset in itertools.permutations(sizes, L):
+            if subset == ():
+                continue
             model = MLPClassifier(max_iter=600, verbose=False, hidden_layer_sizes=subset)
-            scores = train_model_by_kfold(data, model)
+            scores = train_model_by_kfold(data, model).mean()
             scores['hidden_layer_size'] = subset
             all_scores = all_scores.append(scores, ignore_index=True)
 
