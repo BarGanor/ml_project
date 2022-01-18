@@ -13,6 +13,8 @@ def train_model_by_kfold(df, model):
         X_train, X_test = X.iloc[train_index], X.iloc[test_index]
         y_train, y_test = y.iloc[train_index], y.iloc[test_index]
         model.fit(X_train, y_train)
+
+        # roc_auc scores
         training_score = roc_auc_score(y_true=y_train, y_score=model.predict_proba(X_train)[:, 1])
         test_score = roc_auc_score(y_true=y_test, y_score=model.predict_proba(X_test)[:, 1])
         scores = scores.append({'training_score': training_score, 'test_score': test_score}, ignore_index=True)
