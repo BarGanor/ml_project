@@ -834,3 +834,81 @@ final_model.fit(X_Train_ImprovementNormalize, Y_Train_ImprovementNormalize)
 FinalPredictions = pd.DataFrame(final_model.predict((X_Test)))
 FinalPredictions = FinalPredictions.rename(columns={0: 'y'})
 FinalPredictions.to_csv('FinalPredictions.csv', index=False)
+
+
+
+##GRID SERCH -OFRI
+
+from sklearn.model_selection import GridSearchCV
+X_Train = data.drop(columns=['target'])
+Y_Train = data['target']
+##DT
+decision_tree = DecisionTreeClassifier(random_state=42)
+
+parameter_options_DT = {"criterion": ['gini', 'entropy'],
+                        "max_depth": range(1, 10),
+                        "max_features": ['auto', 'sqrt', 'log2', None]}
+
+grid_DT = GridSearchCV(decision_tree, param_grid=parameter_options_DT, cv=10,
+                       return_train_score=True, refit=True)
+grid_DT.fit(X_Train, Y_Train)
+
+best_params_DT = grid_DT.best_params_
+all_score_DT = pd.DataFrame({'param': grid_DT.cv_results_["params"],
+                             'Val_Accuracy': grid_DT.cv_results_["mean_test_score"],
+                             'Train_Accuracy': grid_DT.cv_results_["mean_train_score"]})
+best_score_DT = all_score_DT[all_score_DT['param'] == best_params_DT]
+best_DT_model = grid_DT.best_estimator_
+
+##ANNN
+from sklearn.model_selection import GridSearchCV
+X_Train = data.drop(columns=['target'])
+Y_Train = data['target']
+ANN = MLPClassifier()
+
+parameter_options_ANN = {"max_iter": range(100, 800, 100),
+                         "hidden_layer_sizes": (100, 50, 10),
+                         "activation": ['identity', 'logistic', 'tanh', 'relu'],
+                         "solver":['sgd', 'adam', 'lbfgs'],
+                         "n_iter_no_change":[5, 10, 15, 20]}
+
+grid_ANN = GridSearchCV(ANN, param_grid=parameter_options_ANN, cv=10,
+                        return_train_score=True, refit=True, scoring='roc_auc')
+grid_ANN.fit(X_Train, Y_Train)
+
+best_params_ANN = grid_ANN.best_params_
+all_score_ANN = pd.DataFrame({'param': grid_DT.cv_results_["params"],
+                              'Val_Accuracy': grid_ANN.cv_results_["mean_test_score"],
+                              'Train_Accuracy': grid_ANN.cv_results_["mean_train_score"]})
+best_score_ANN = all_score_ANN[all_score_DT['param'] == best_params_ANN]
+best_ANN_model = grid_ANN.best_estimator_
+print(best_ANN_model)
+## SVM
+SVM_model = SVC(kernel='linear', random_state=42)
+param_grid = {'C': np.arange(1, 2, 0.1),
+              'decision_function_shape': ['ovo', 'ovr']
+              }
+
+grid_search_SVM = GridSearchCV(estimator=SVM_model,
+                               param_grid=param_grid,
+                               refit=True,
+                               cv=10,
+                               return_train_score=True)
+
+grid_search_SVM.fit(X_Train_Normalize, Y_Train_Normalize)
+
+best_params_SVM = grid_search_SVM.best_params_
+all_score_SVM = pd.DataFrame({'param': grid_search_SVM.cv_results_["params"],
+                              'Val_Accuracy': grid_search_SVM.cv_results_["mean_test_score"],
+                              'Train_Accuracy': grid_search_SVM.cv_results_["mean_train_score"]})
+best_score_SVM = all_score_SVM[all_score_SVM['param'] == best_params_SVM]
+
+best_model_SVM = grid_search_SVM.best_estimator_
+
+print('Coefficients: \n', best_model_SVM.coef_)
+print('Intercepts: \n', best_model_SVM.intercept_)
+
+## PRINT
+print(best_DT_model)
+print(best_ANN_model)
+print(best_model_SVM)

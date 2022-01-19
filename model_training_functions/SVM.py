@@ -10,7 +10,10 @@ def get_C_SVM(df):
         model = SVC(C=c, kernel='linear', random_state=42, probability=True)
         scores = train_model_by_kfold(df, model)
         scores['C'] = c
-        all_scores = all_scores.append(scores, ignore_index=True)
+        all_scores = all_scores.append({'C':c,
+                                        'test_score': scores['test_score'].mean(),
+                                        'training_score': scores['training_score'].mean() }, ignore_index=True)
+                
     return  all_scores
 
 
@@ -18,16 +21,19 @@ def get_decision_function_shape_SVM(df):
     decision_function_shape= ['ovo', 'ovr']
     all_scores = pd.DataFrame()
     for decision in decision_function_shape:
-        model =  SVC(C=1, kernel='linear',decision_function_shape=decision, random_state=42, probability=True)
+        model =  SVC(C=1.2, kernel='linear',decision_function_shape=decision, random_state=42, probability=True)
         scores = train_model_by_kfold(df, model)
         scores['decision_function_shape'] = decision
-        all_scores = all_scores.append(scores, ignore_index=True)
+        all_scores = all_scores.append({'decision_function_shape':  decision,
+                                        'test_score': scores['test_score'].mean(),
+                                        'training_score': scores['training_score'].mean() }, ignore_index=True)
+                                        
     return  all_scores
 
 def get_result_coeff_and_intrec(df):
     x=df.drop(columns=['target'])
     y=df['target']
-    SVM_best_model= SVC(C=1, kernel='linear',decision_function_shape='ovo', random_state=42, probability=True)
+    SVM_best_model= SVC(C=1.2, kernel='linear',decision_function_shape='ovr', random_state=42, probability=True)
     SVM_best_model.fit(x,y)
     print('Coefficients: \n',SVM_best_model.coef_)
     print('Intercepts: \n', SVM_best_model.intercept_)

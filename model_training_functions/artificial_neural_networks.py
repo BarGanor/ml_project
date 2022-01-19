@@ -4,7 +4,9 @@ from sklearn.neural_network import MLPClassifier
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+from sklearn.metrics import confusion_matrix
+import numpy as np
+from sklearn.model_selection import KFold
 
 def max_iterations(data, do_plot=False):
     iterations = range(100, 800, 100)
@@ -79,6 +81,25 @@ def n_iter_no_change(data, do_plot):
 
     return all_scores
 
+def ann_Confusion_Matrix(df,model ,do_plot=False):
+    Final_Confusion_Matrix = np.zeros((2,2),dtype=int)    
+    kf = KFold(n_splits=10)
+    X = df.drop(columns=['target'])
+    y = df['target']
+    for train_index, test_index in kf.split(df):
+        X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+        model.fit(X_train,y_train)
+        confusion_temp =confusion_matrix(y_true=y_train , y_pred=model.predict(X_train))
+        for i in range(0,2,1):
+            for j in range(0,2,1):
+                Final_Confusion_Matrix[i,j] += confusion_temp[i,j] 
+    
+    if do_plot:
+        plot_ann_Confusion_Matrix(((Final_Confusion_Matrix)/10))
+        
+    return Final_Confusion_Matrix 
+
 
 def plot_n_iter_no_change(all_scores):
     plt.figure(figsize=(12, 5))
@@ -133,3 +154,11 @@ def plot_hidden_layer_sizes(all_scores):
     plt.ylim(temp['value'].min() - 0.01, temp['value'].max() + 0.01)
     plt.title('Hidden Layer Sizes Tuning')
     plt.show()
+    
+def plot_ann_Confusion_Matrix(Final_Confusion_Matrix):
+    Final_Confusion_Matrix = Final_Confusion_Matrix.round()
+    ax= plt.subplot()
+    sns.heatmap(Final_Confusion_Matrix, annot=True, fmt='g', ax=ax)
+    ax.set_xlabel('Predicted labels');ax.set_ylabel('True labels')
+    ax.set_title('Confusion Matrix')
+    

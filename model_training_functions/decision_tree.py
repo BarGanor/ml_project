@@ -27,7 +27,7 @@ def criterion(data, do_plot=False):
     all_scores = pd.DataFrame()
 
     for criterion in criterions:
-        model = DecisionTreeClassifier(max_depth=3, criterion=criterion)
+        model = DecisionTreeClassifier(max_depth=5, criterion=criterion)
         scores = train_model_by_kfold(data, model)
         all_scores = all_scores.append({'criterion':  criterion,
                                         'test_score': scores['test_score'].mean(),
@@ -43,7 +43,7 @@ def min_samples_leaf(data, do_plot=False):
     all_scores = pd.DataFrame()
 
     for min_sample in min_samples:
-        model = DecisionTreeClassifier(max_depth=3, criterion='gini', min_samples_leaf=min_sample)
+        model = DecisionTreeClassifier(max_depth=5, criterion='entropy', min_samples_leaf=min_sample)
         scores = train_model_by_kfold(data, model)
         all_scores = all_scores.append({'min_samples_leaf':  min_sample,
                                         'test_score': scores['test_score'].mean(),
@@ -58,7 +58,7 @@ def min_impurity_decrease(data, do_plot=False):
     min_impurities = [i / 1000 for i in range(10)]
     all_scores = pd.DataFrame()
     for min_impurity in min_impurities:
-        model = DecisionTreeClassifier(max_depth=3, criterion='gini', min_samples_leaf=81, min_impurity_decrease=min_impurity)
+        model = DecisionTreeClassifier(max_depth=5, criterion='entropy', min_samples_leaf=140, min_impurity_decrease=min_impurity)
         scores = train_model_by_kfold(data, model)
         all_scores = all_scores.append({'min_impurity_decrease': min_impurity,
                                         'test_score': scores['test_score'].mean(),
@@ -118,7 +118,7 @@ def plot_min_impurity(all_scores):
 def plot_Decision_Tree(df):
     X = df.drop(columns=['target'])
     Y = df['target']
-    model = DecisionTreeClassifier(max_depth=3, criterion='gini', min_samples_leaf=81)
+    model = DecisionTreeClassifier(max_depth=5, criterion='entropy', min_samples_leaf=130, min_impurity_decrease=0.002)
     model.fit(X,Y)
     plt.figure(figsize=(60, 40))
     plot_tree(model, filled=True, class_names=True,feature_names=X.columns[:])
@@ -128,7 +128,7 @@ def plot_Decision_Tree(df):
 def feature_importance(df):
     X = df.drop(columns=['target'])
     Y = df['target']
-    model = DecisionTreeClassifier(max_depth=3, criterion='gini', min_samples_leaf=81)
+    model = DecisionTreeClassifier(max_depth=5, criterion='entropy', min_samples_leaf=130, min_impurity_decrease=0.002)
     model.fit(X,Y)
     importance = model.feature_importances_
     for i, v in enumerate(importance):
