@@ -24,14 +24,14 @@ def evaluation_model(df, model,model_name):
         training_score_accuracy = accuracy_score(y_train, model.predict(X_train))
         test_score_accuracy = accuracy_score(y_test, model.predict(X_test))
         #precision
-        training_score_precision = precision_score(y_train, model.predict(X_train),average='macro')
-        test_score_precision = precision_score(y_test,model.predict(X_test),average='macro')
+        training_score_precision = precision_score(y_train, model.predict(X_train),average='binary')
+        test_score_precision = precision_score(y_test,model.predict(X_test),average='binary')
         #recall
-        training_score_recall = recall_score(y_train, model.predict(X_train),average='macro')
-        test_score_recall = recall_score(y_test,model.predict(X_test),average='macro')
+        training_score_recall = recall_score(y_train, model.predict(X_train),average='binary')
+        test_score_recall = recall_score(y_test,model.predict(X_test),average='binary')
         #F1
-        training_score_F1 = f1_score(y_train, model.predict(X_train),average='macro')
-        test_score_F1 = f1_score(y_test, model.predict(X_test),average='macro')
+        training_score_F1 = f1_score(y_train, model.predict(X_train),average='binary')
+        test_score_F1 = f1_score(y_test, model.predict(X_test),average='binary')
         #scores apend
         scores_model = scores_model.append({'training score roc auc': training_score_roc_auc,
                                             'test score roc auc': test_score_roc_auc,

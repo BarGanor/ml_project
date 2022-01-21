@@ -6,8 +6,8 @@ import seaborn as sns
 from sklearn.metrics import silhouette_score, davies_bouldin_score, roc_auc_score
 from yellowbrick.cluster import KElbowVisualizer
 
-def best_cluster(data, do_plot=False):
-    x_train = data.drop(columns=['target'])
+def best_cluster(df, do_plot=False):
+    x_train = df.drop(columns=['target'])
     scores = pd.DataFrame()
     for n_clusters in range(2, 10, 1):
         k_medoids = KMedoids(n_clusters=n_clusters, random_state=42)
